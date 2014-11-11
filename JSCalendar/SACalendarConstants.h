@@ -68,7 +68,7 @@ typedef enum {
 // There are 3 layers view in SACalendar, the default UIView, the scroll view, and the collection view.
 // Change their colors here
 
-#define viewBackgroundColor [UIColor blackColor]
+#define viewBackgroundColor [UIColor whiteColor]
 #define scrollViewBackgroundColor [UIColor colorWithRed:40.0f/255.0f green:177.0f/255.0f blue:255.0f/255.0f alpha:1.0f]
 #define calendarBackgroundColor [UIColor colorWithRed:40.0f/255.0f green:177.0f/255.0f blue:255.0f/255.0f alpha:1.0f]
 #define weekdayBackgroundColor [UIColor colorWithRed:40.0f/255.0f green:177.0f/255.0f blue:255.0f/255.0f alpha:1.0f]

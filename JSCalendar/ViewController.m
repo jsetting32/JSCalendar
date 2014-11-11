@@ -10,6 +10,7 @@
 #import "ViewController.h"
 #import "SACalendar.h"
 #import "DateUtil.h"
+#import "JSLogWorkoutController.h"
 
 @interface ViewController () <SACalendarDelegate, SACalendarDataSource, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate>
 @property (nonatomic) NSDateFormatter *dateFormatter;
@@ -19,7 +20,7 @@
 @property (nonatomic) SACalendar *calendarView;
 @property (nonatomic) UITableView *table;
 @property (nonatomic) NSMutableArray *dates;
-@property (nonatomic) NSArray *objects;
+@property (nonatomic) NSMutableArray *objects;
 @property (nonatomic) NSDate *selectedDate;
 @property (nonatomic) UILabel *navTitleView;
 @property int currentDateRange;
@@ -52,25 +53,33 @@
     self.navTitleView =[[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 120, 40)];
     [self.navTitleView setTextAlignment:NSTextAlignmentCenter];
     [self.navTitleView setUserInteractionEnabled:YES];
-    [self.navTitleView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapTitleView:)]];
+    [self.navTitleView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.calendarView action:@selector(selectCurrentDay)]];
     self.navigationItem.titleView = self.navTitleView;
 
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createWorkout:)];
+    
+    
     [self.view addSubview:self.calendarView];
     [self.view addSubview:self.table];
 
     self.selectedDate = [NSDate date];
     
-    self.objects = [NSArray arrayWithObjects:
+    self.objects = [NSMutableArray arrayWithObjects:
                         @{@"name":@"Linda", @"date":[NSDate date]},
                         @{@"name":@"Grace", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*-20)]},
                         @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*20 + 100)]},
                         @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*20)]},
-                        @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*20 + 200)]},
+                        @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*100)]},
                     nil];
-    
+
 }
 
-- (void)didTapTitleView:(UITapGestureRecognizer *)recognizer
+- (void)createWorkout:(UIBarButtonItem *)item
+{
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[JSLogWorkoutController alloc] init]] animated:YES completion:nil];
+}
+
+- (void)didFinishLoading
 {
     [self.calendarView selectCurrentDay];
 }
@@ -133,7 +142,6 @@
 
 - (NSArray *)objectsInDict:(NSString *)sectionTitle
 {
-    
     NSMutableArray *array = [NSMutableArray array];
     for (NSDictionary *dict in self.objects) {
         if ([[self.dayFormatter stringFromDate:[dict objectForKey:@"date"]] isEqual:sectionTitle]) {
@@ -155,11 +163,21 @@
 - (BOOL)SACalendar:(SACalendar *)calendar doesCellHaveEvent:(int)day month:(int)month year:(int)year
 {
     for (NSDictionary *dict in self.objects) {
-        if ([[self.dateFormatter stringFromDate:[dict objectForKey:@"date"]] isEqual:[NSString stringWithFormat:@"%i/%i/%i", month, day, year]]) {
+        if ([[self.dateFormatter stringFromDate:[dict objectForKey:@"date"]] isEqual:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]]) {
             return NO;
         }
     }    
     return YES;
+}
+
+- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year
+{
+    [self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+}
+
+- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year
+{
+    [self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
 
 - (void) SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year

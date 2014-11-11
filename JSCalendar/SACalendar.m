@@ -33,7 +33,11 @@
     int selectedRow;
     int headerSize;
     
+    int todayIndexPath;
 }
+
+@property (nonatomic) NSDateFormatter *MMyyFormatter;
+@property (nonatomic) NSDateFormatter *MMMMyyyyFormatter;
 
 @end
 
@@ -63,6 +67,12 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
+        
+        self.MMMMyyyyFormatter = [[NSDateFormatter alloc] init];
+        [self.MMMMyyyyFormatter setDateFormat:@"MMMM yyyy"];
+        
+        self.MMyyFormatter = [[NSDateFormatter alloc] init];
+        [self.MMyyFormatter setDateFormat:@"MM yyyy"];
         
         controllers = [NSMutableDictionary dictionary];
         calendars = [NSMutableDictionary dictionary];
@@ -153,6 +163,18 @@
     }
 }
 
+- (void)selectCurrentDay
+{
+    NSString *date = [self.MMMMyyyyFormatter stringFromDate:[self.MMyyFormatter dateFromString:[NSString stringWithFormat:@"%i %i", month, year]]];
+    for(id key in monthLabels) {
+        UILabel * value = [monthLabels objectForKey:key];
+        if ([[value text] isEqualToString:date]) {
+            UICollectionView *collectionView = [calendars objectForKey:key];
+            [self collectionView:collectionView didSelectItemAtIndexPath:[NSIndexPath indexPathForRow:todayIndexPath inSection:0]];
+        }
+    }
+}
+
 #pragma SCROLL VIEW DELEGATE
 
 - (UIViewController *)controllerAtIndex:(NSInteger) index {
@@ -164,6 +186,9 @@
             month = MIN_MONTH;
             year ++;
         }
+    
+
+        
         scrollLeft = NO;
         selectedRow = DESELECT_ROW;
     }
@@ -176,6 +201,9 @@
             month = MAX_MONTH;
             year--;
         }
+    
+
+        
         scrollLeft = YES;
         selectedRow = DESELECT_ROW;
     }
@@ -238,7 +266,7 @@
         
         UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc]init];
         flowLayout.itemSize = self.frame.size;
-        
+
         headerSize = self.frame.size.height / calendarToHeaderRatio;
         
         CGRect rect = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - headerSize);
@@ -246,6 +274,7 @@
         calendar.dataSource = self;
         calendar.delegate = self;
         calendar.scrollEnabled = NO;
+        calendar.allowsSelection = YES;
         [calendar registerClass:[SACalendarCell class] forCellWithReuseIdentifier:@"cellIdentifier"];
         [calendar setBackgroundColor:calendarBackgroundColor];
         calendar.tag = index;
@@ -268,8 +297,52 @@
         [controllers setObject:contr forKey:[NSString stringWithFormat:@"%li",(long)index]];
         [monthLabels setObject:monthLabel forKey:[NSString stringWithFormat:@"%li",(long)index]];
         
+        /*
+        if (scrollLeft) {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:withIndexPath:month:year:)]) {
+                [_delegate SACalendar:self
+                        didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
+                                month:month
+                                 year:year];
+            }
+        } else {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:withIndexPath:month:year:)]) {
+                [_delegate SACalendar:self
+                       didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
+                                month:month
+                                 year:year];
+            }
+        }
+        */
+        
         return contr;
     } else {
+        
+        /*
+        if (scrollLeft) {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:withIndexPath:month:year:)]) {
+                [_delegate SACalendar:self
+                        didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
+                                month:month
+                                 year:year];
+                
+            }
+            
+        } else {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:withIndexPath:month:year:)]) {
+                [_delegate SACalendar:self
+                       didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
+                                month:month
+                                 year:year];
+            }
+            
+        }
+        */
+        
         return [controllers objectForKey:[NSString stringWithFormat:@"%li",(long)index]];
     }
     
@@ -453,8 +526,6 @@
         }
         
         selectedRow = (int)indexPath.row;
-    } else {
-        selectedRow = DESELECT_ROW;
     }
     
     [collectionView reloadData];

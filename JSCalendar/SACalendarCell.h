@@ -9,8 +9,11 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol SACalendarCellDelegate;
+
 @interface SACalendarCell : UICollectionViewCell
 
+@property (nonatomic, weak)id<SACalendarCellDelegate>delegate;
 /**
  *  a circle that appears on the current date
  */
@@ -32,3 +35,4 @@
 @property UIView *eventView;
 
 @end
+

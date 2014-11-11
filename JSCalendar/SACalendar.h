@@ -64,7 +64,7 @@
 -(id)initWithFrame:(CGRect)frame month:(int)m year:(int)y scrollDirection:(scrollDirection)direction pagingEnabled:(BOOL)paging;
 
 - (void)selectCurrentDay;
-
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol SACalendarDelegate <NSObject>
@@ -89,8 +89,10 @@
  *  @param year     The year selected
  */
 -(void) SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year;
-
 -(BOOL) SACalendar:(SACalendar *)calendar doesCellHaveEvent:(int)day month:(int)month year:(int)year;
+
+- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year;
+- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year;
 
 @end
 
