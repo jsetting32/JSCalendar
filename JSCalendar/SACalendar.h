@@ -14,11 +14,9 @@
 #import "DMLazyScrollView.h"
 
 @protocol SACalendarDelegate;
-@protocol SACalendarDataSource;
 @interface SACalendar : UIView
 
 @property (nonatomic, weak) id<SACalendarDelegate> delegate;
-@property (nonatomic, weak) id<SACalendarDataSource> dataSource;
 @property (nonatomic) DMLazyScrollView* scrollView;
 
 /**
@@ -64,9 +62,12 @@
  *  @return initialized calendar
  */
 -(id)initWithFrame:(CGRect)frame month:(int)m year:(int)y scrollDirection:(scrollDirection)direction pagingEnabled:(BOOL)paging;
-- (void)collectionView:(UICollectionView *)collectionView selectItemAtIndexPath:(NSIndexPath *)indexPath;
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 
+/** 
+ *  This method selects the day on the calendar view
+ *
+ *  @param theDate   A string with the current date (e.g Monday, November 11, 2014)
+ */
 - (void)selectDay:(NSString *)theDate;
 @end
 
@@ -92,14 +93,34 @@
  *  @param year     The year selected
  */
 -(void) SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year;
--(BOOL) SACalendar:(SACalendar *)calendar doesCellHaveEvent:(int)day month:(int)month year:(int)year;
 
+/**
+ *  This function get called when a collection view is loaded and checks whether an event is on the
+ *  specified date
+ *
+ *  @param calendar The calendar object that the selected date is on
+ *  @param day      The day
+ *  @param month    The month
+ *  @param year     The year
+ */
+- (BOOL)SACalendar:(SACalendar *)calendar doesCellHaveEvent:(int)day month:(int)month year:(int)year;
+
+/**
+ *  This function is called when the user scrolls the calendar left
+ *  @param calendar The calendar object that is current visible
+ *  @param day      The day
+ *  @param month    The month
+ *  @param year     The year
+ */
 - (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year;
+
+/**
+ *  This function is called when the user scrolls the calendar right
+ *  @param calendar The calendar object that is current visible
+ *  @param day      The day
+ *  @param month    The month
+ *  @param year     The year
+ */
 - (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year;
-
-@end
-
-@protocol SACalendarDataSource <NSObject>
-@optional
 
 @end

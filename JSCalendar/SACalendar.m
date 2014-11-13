@@ -51,24 +51,6 @@
 
 @implementation SACalendar
 
-- (void)lazyScrollViewDidScroll:(DMLazyScrollView *)pagingView at:(CGPoint)visibleOffset
-{
-    calendarIsScrollingManually = TRUE;
-}
-
-- (void)lazyScrollViewDidEndDecelerating:(DMLazyScrollView *)pagingView atPageIndex:(NSInteger)pageIndex
-{
-    calendarIsScrollingManually = FALSE;
-}
-
-- (void)lazyScrollView:(DMLazyScrollView *)pagingView currentPageChanged:(NSInteger)currentPageIndex
-{
-    if (calendarIsScrollingManually) {
-        UICollectionView *view = [calendars objectForKey:[NSString stringWithFormat:@"%li",(long)currentPageIndex]];
-        [self collectionView:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)currentPageIndex]] didSelectItemAtIndexPath:nil];
-    }
-}
-
 - (id)initWithFrame:(CGRect)frame
 {
     return [self initWithFrame:frame month:0 year:0 scrollDirection:ScrollDirectionHorizontal pagingEnabled:YES];
@@ -139,7 +121,7 @@
         
         CGRect rect = CGRectMake(0, 94, self.frame.size.width, 200);
         self.scrollView = [[DMLazyScrollView alloc] initWithFrameAndDirection:rect direction:direction circularScroll:YES paging:paging];
-        //self.scrollView.controlDelegate = self;
+        self.scrollView.controlDelegate = self;
         self.backgroundColor = viewBackgroundColor;
         
         UIView *weekdayLabel = [[UIView alloc] initWithFrame:CGRectMake(0, 64, self.frame.size.width, 30)];
@@ -215,7 +197,6 @@
         }
     
         scrollLeft = NO;
-        //selectedRow = DESELECT_ROW;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
         
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:day:month:year:)]) {
@@ -225,8 +206,6 @@
                             month:month
                              year:year];
         }
-        
-        //selectedRow = DESELECT_ROW;
     
     } else if(state == LOADSTATEPREVIOUS) {
     
@@ -236,7 +215,6 @@
         }
     
         scrollLeft = YES;
-        //selectedRow = DESELECT_ROW;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:day:month:year:)]) {
             [_delegate SACalendar:self
@@ -245,9 +223,7 @@
                             month:month
                              year:year];
                 
-        }
-                
-        //selectedRow = DESELECT_ROW;
+        }                
     }
     
     previousIndex = (int)index;
@@ -453,8 +429,8 @@
             cell.dateLabel.font = cellBoldFont;
             isToday = YES;
             if (firstLoad) {
-                day = indexPath.row - firstDay + 1;
-                selectedRow = indexPath.row;
+                day = (int)indexPath.row - firstDay + 1;
+                selectedRow = (int)indexPath.row;
                 firstLoad = false;
             }
             
@@ -524,27 +500,15 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    
-    //if (!indexPath) {
-    
-        //int dateSelected = firstDay + 1;
-        //if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didSelectDate:month:year:)]) {
-        //    [_delegate SACalendar:self didSelectDate:dateSelected month:month year:year];
-        //}
-    
-    //} else {
-        int daysInMonth = (int)[DateUtil getDaysInMonth:[self monthToLoad:(int)collectionView.tag] year:[self yearToLoad:(int)collectionView.tag]];
-        if (!(indexPath.row < firstDay || indexPath.row >= firstDay + daysInMonth)) {
-            
-            int dateSelected = (int)indexPath.row - firstDay + 1;
-            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didSelectDate:month:year:)]) {
-                [_delegate SACalendar:self didSelectDate:dateSelected month:month year:year];
-            }
-            selectedRow = (int)indexPath.row;
+    int daysInMonth = (int)[DateUtil getDaysInMonth:[self monthToLoad:(int)collectionView.tag] year:[self yearToLoad:(int)collectionView.tag]];
+    if (!(indexPath.row < firstDay || indexPath.row >= firstDay + daysInMonth)) {
+        
+        int dateSelected = (int)indexPath.row - firstDay + 1;
+        if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didSelectDate:month:year:)]) {
+            [_delegate SACalendar:self didSelectDate:dateSelected month:month year:year];
         }
-    //}
-    
-
+        selectedRow = (int)indexPath.row;
+    }
     
     [collectionView reloadData];
 }
@@ -590,6 +554,22 @@
         }
     }
     
+}
+
+
+#pragma mark - DMLazyScrollView Delegate;
+- (void)lazyScrollViewWillBeginDragging:(DMLazyScrollView *)pagingView
+{
+    calendarIsScrollingManually = TRUE;
+}
+
+- (void)lazyScrollView:(DMLazyScrollView *)pagingView currentPageChanged:(NSInteger)currentPageIndex
+{
+    if (calendarIsScrollingManually) {
+        calendarIsScrollingManually = FALSE;
+        UICollectionView *view = [calendars objectForKey:[NSString stringWithFormat:@"%li",(long)currentPageIndex]];
+        [self collectionView:view didSelectItemAtIndexPath:[NSIndexPath indexPathForRow:firstDay inSection:0]];
+    }
 }
 
 

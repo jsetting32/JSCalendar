@@ -28,7 +28,6 @@
 @property int previousDateRange;
 @property int futureDateRange;
 @property NSString *currentSelectedTitle;
-//@property BOOL scrolling;
 @end
 
 @implementation ViewController
@@ -36,7 +35,6 @@
 - (id)init
 {
     if (!(self = [super init])) return nil;
-    //self.scrolling = NO;
     return self;
 }
 
@@ -192,7 +190,7 @@
         scrollView_.contentOffset = CGPointMake(currentOffsetX,(currentOffSetY + (contentHeight/2)));
     }
     if (currentOffSetY > ((contentHeight * 6)/ 8.0)) {
-        [self addFutureDatesToDataSource];
+        [self addNextDatesToDataSource];
     }
 
     
@@ -276,7 +274,6 @@
 
 - (void)SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year
 {
-    //self.dateSelected = true;
     self.selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
     NSString *ndate = [self.dayFormatter stringFromDate:self.selectedDate];
     [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.dates indexOfObject:ndate]] atScrollPosition:UITableViewScrollPositionTop animated:NO];
@@ -315,7 +312,17 @@
 
 
 #pragma mark - Helper Methods
-- (void)addFutureDatesToDataSource
+- (void)addPastDatesToDataSource
+{
+    NSMutableArray *array = [NSMutableArray array];
+    self.previousDateRange -= 60;
+    for (int i = self.previousDateRange + 59; i >= self.previousDateRange; i--) {
+        [array insertObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]] atIndex:0];
+    }
+    [self.dates insertObjects:array atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [array count])]];
+}
+
+- (void)addNextDatesToDataSource
 {
     NSMutableArray *array = [NSMutableArray array];
     self.futureDateRange += 60;
@@ -325,19 +332,6 @@
     [self.dates addObjectsFromArray:array];
     [self.table reloadData];
 }
-
-- (void)addPastDatesToDataSource
-{
-    NSMutableArray *array = [NSMutableArray array];
-    self.previousDateRange -= 60;
-    for (int i = self.previousDateRange + 59; i >= self.previousDateRange; i--) {
-        [array insertObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]] atIndex:0];
-    }
-    NSRange range = NSMakeRange(0, [array count]);
-    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
-    [self.dates insertObjects:array atIndexes:indexSet];
-}
-
 
 #pragma mark - Initializers
 - (SACalendar *)calendarView
