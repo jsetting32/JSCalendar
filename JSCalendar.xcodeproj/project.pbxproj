@@ -19,7 +19,6 @@
 		1E55F4951A119EA50037C046 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E55F48E1A119EA50037C046 /* AppDelegate.m */; };
 		1E55F4961A119EA50037C046 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E55F4901A119EA50037C046 /* ViewController.m */; };
 		1E55F4991A11C3D40037C046 /* JSLogWorkoutController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E55F4981A11C3D40037C046 /* JSLogWorkoutController.m */; };
-		1E79454B1A14658A00172FFB /* JSCalendarScreenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E79454A1A14658A00172FFB /* JSCalendarScreenshot.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,7 +56,6 @@
 		1E55F4901A119EA50037C046 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		1E55F4971A11C3D40037C046 /* JSLogWorkoutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSLogWorkoutController.h; sourceTree = "<group>"; };
 		1E55F4981A11C3D40037C046 /* JSLogWorkoutController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSLogWorkoutController.m; sourceTree = "<group>"; };
-		1E79454A1A14658A00172FFB /* JSCalendarScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = JSCalendarScreenshot.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,7 +97,6 @@
 		1E5108DF1A0F7156004B2530 /* JSCalendar */ = {
 			isa = PBXGroup;
 			children = (
-				1E79454A1A14658A00172FFB /* JSCalendarScreenshot.png */,
 				1E55F48D1A119EA50037C046 /* AppDelegate.h */,
 				1E55F48E1A119EA50037C046 /* AppDelegate.m */,
 				1E55F4841A119EA50037C046 /* DateUtil.h */,
@@ -230,7 +227,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E5108F41A0F7157004B2530 /* LaunchScreen.xib in Resources */,
-				1E79454B1A14658A00172FFB /* JSCalendarScreenshot.png in Resources */,
 				1E5108F11A0F7157004B2530 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
