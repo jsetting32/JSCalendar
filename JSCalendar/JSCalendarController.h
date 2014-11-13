@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  JSCalendarController.h
 //  SACalendar
 //
 //  Created by Nop Shusang on 7/12/14.
@@ -10,6 +10,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface JSCalendarController : UIViewController
+@property (nonatomic) NSMutableArray *objects;
 @end

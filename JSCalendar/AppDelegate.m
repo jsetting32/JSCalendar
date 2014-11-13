@@ -7,14 +7,14 @@
 //
 
 #import "AppDelegate.h"
-#import "ViewController.h"
+#import "JSCalendarController.h"
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    ViewController *main = [[ViewController alloc] init];
+    JSCalendarController *main = [[JSCalendarController alloc] init];
     UINavigationController *frontNavigationController = [[UINavigationController alloc] initWithRootViewController:main];
     self.window.rootViewController = frontNavigationController;
     [self.window makeKeyAndVisible];

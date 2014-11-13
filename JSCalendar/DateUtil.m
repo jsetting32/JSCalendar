@@ -15,8 +15,9 @@
 
 +(NSInteger)getNumberOfWeeksInMonth:(NSDate *)date
 {
-    NSRange weekRange = [[NSCalendar currentCalendar] rangeOfUnit:NSCalendarUnitWeekOfMonth inUnit:NSCalendarUnitMonth forDate:date];
-    return weekRange.length;
+    NSCalendar *calender = [NSCalendar currentCalendar];
+    NSRange weekRange = [calender rangeOfUnit:NSWeekCalendarUnit inUnit:NSMonthCalendarUnit forDate:date];
+    return weekRange.length;;
 }
 
 +(NSString*)getCurrentDate

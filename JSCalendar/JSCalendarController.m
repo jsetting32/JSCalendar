@@ -9,12 +9,12 @@
 //
 //  Extended By John Setting on 11/07/14
 
-#import "ViewController.h"
+#import "JSCalendarController.h"
 #import "SACalendar.h"
 #import "DateUtil.h"
 #import "JSLogWorkoutController.h"
 
-@interface ViewController () <SACalendarDelegate, SACalendarDataSource, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate>
+@interface JSCalendarController () <SACalendarDelegate, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate>
 @property (nonatomic) NSDateFormatter *dateFormatter;
 @property (nonatomic) NSDateFormatter *monthFormatter;
 @property (nonatomic) NSDateFormatter *dayFormatter;
@@ -22,7 +22,6 @@
 @property (nonatomic) SACalendar *calendarView;
 @property (nonatomic) UITableView *table;
 @property (nonatomic) NSMutableArray *dates;
-@property (nonatomic) NSMutableArray *objects;
 @property (nonatomic) NSDate *selectedDate;
 @property (nonatomic) UILabel *navTitleView;
 @property int previousDateRange;
@@ -30,11 +29,18 @@
 @property NSString *currentSelectedTitle;
 @end
 
-@implementation ViewController
+@implementation JSCalendarController
 
 - (id)init
 {
     if (!(self = [super init])) return nil;
+    self.previousDateRange = -60;
+    self.futureDateRange = 60;
+    self.objects = [NSMutableArray array];
+    self.dates = [NSMutableArray array];
+    self.selectedDate = [NSDate date];
+    [self.view addSubview:self.calendarView];
+    [self.view addSubview:self.table];
     return self;
 }
 
@@ -53,28 +59,10 @@
 
     self.timeFormatter = [[NSDateFormatter alloc] init];
     [self.timeFormatter setDateFormat:@"hh:mm a"];
-
-    /*
-    self.navTitleView =[[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 120, 40)];
-    [self.navTitleView setTextAlignment:NSTextAlignmentCenter];
-    [self.navTitleView setUserInteractionEnabled:YES];
-    [self.navTitleView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.calendarView action:@selector(selectCurrentDay)]];
-    self.navigationItem.titleView = self.navTitleView;
-    */
      
-     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createWorkout:)];
-    
-    
-    self.previousDateRange = -60;
-
-    self.futureDateRange = 60;
-    
-    [self.view addSubview:self.calendarView];
-    [self.view addSubview:self.table];
-
-    self.selectedDate = [NSDate date];
-    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
+                                                                                           target:self
+                                                                                           action:@selector(createWorkout:)];
     self.objects = [NSMutableArray arrayWithObjects:
                         @{@"name":@"Linda", @"date":[NSDate date]},
                         @{@"name":@"Grace", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*-20)]},
@@ -82,12 +70,12 @@
                         @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*20)]},
                         @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*100)]},
                     nil];
-
-    self.dates = [NSMutableArray array];
     
-    for (int i = -60; i < 60; i++) {
-        if (i == 0) [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate date]]];
-        else [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]]];
+    for (int i = self.previousDateRange; i < self.futureDateRange; i++) {
+        if (i == 0)
+            [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate date]]];
+        else
+            [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]]];
     }
     
     [self.table reloadData];
@@ -96,7 +84,9 @@
 
 - (void)createWorkout:(UIBarButtonItem *)item
 {
-    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[JSLogWorkoutController alloc] init]] animated:YES completion:nil];
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[JSLogWorkoutController alloc] init]]
+                       animated:YES
+                     completion:nil];
 }
 
 - (NSArray *)objectsInDict:(NSString *)sectionTitle
@@ -216,66 +206,15 @@
     return YES;
 }
 
-- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
-{
-    /*
-    NSDate *date = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
-    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:date]] == NSNotFound) 
-        [self addPastDatesToDataSource];
-    */
-    
-    /*
-    if (self.scrolling) {
-        NSLog(@"didScrollLeft Using Table");
-    } else {
-        NSLog(@"didScrollLeft Using Finger");
-        NSDate *selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
-        NSInteger index = [self.dates indexOfObject:[self.dayFormatter stringFromDate:selectedDate]];
-        if (index != NSNotFound)
-            [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:index] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
-    self.scrolling = NO;
-    */
-
-    //[self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
-    //[self.calendarView selectDay:[self.dayFormatter stringFromDate:date]];
-}
-
-- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
-{
-    /*
-    NSDate *curDate = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
-    NSCalendar* cal = [NSCalendar currentCalendar];
-    NSDateComponents* comps = [cal components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitWeekOfMonth|NSCalendarUnitWeekday fromDate:curDate];
-    [comps setMonth:[comps month]+1];
-    [comps setDay:0];
-    NSDate *tDateMonth = [cal dateFromComponents:comps];
-    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:tDateMonth]] == NSNotFound)
-        [self addFutureDatesToDataSource];
-    */
-    
-    /*
-    if (self.scrolling) {
-        NSLog(@"didScrollRight Using Table");
-    } else {
-        NSLog(@"didScrollRight Using Finger");
-        NSDate *selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
-        NSInteger index = [self.dates indexOfObject:[self.dayFormatter stringFromDate:selectedDate]];
-        if (index != NSNotFound)
-            [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:index] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
-    self.scrolling = NO;
-    */
-    
-    
-    //[self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
-    //[self.calendarView selectDay:[self.dayFormatter stringFromDate:tDateMonth]];
-}
-
 - (void)SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year
 {
     self.selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
     NSString *ndate = [self.dayFormatter stringFromDate:self.selectedDate];
+    
+    if ([self.dates indexOfObject:ndate]) {
+        [self addPastDatesToDataSource];
+    }
+    
     [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.dates indexOfObject:ndate]] atScrollPosition:UITableViewScrollPositionTop animated:NO];
 }
 
@@ -284,7 +223,7 @@
 
     int numberOfWeeks = (int)[DateUtil getNumberOfWeeksInMonth:[self.monthFormatter dateFromString:[NSString stringWithFormat:@"%i/%i", month, year]]];
 
-    [UIView animateWithDuration:0.5f animations:^{
+    //[UIView animateWithDuration:0.5f animations:^{
         
     if (numberOfWeeks == 6) {
         [self.calendarView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 280)];
@@ -307,7 +246,21 @@
                                         self.view.frame.size.height - (self.calendarView.frame.origin.y + self.calendarView.frame.size.height))];
     }
         
-    }];
+    //}];
+}
+
+
+- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
+{
+    NSDate *date = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
+    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:date]] == NSNotFound) {
+        [self addPastDatesToDataSource];
+    }
+}
+
+- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
+{
+    
 }
 
 
@@ -341,7 +294,6 @@
                                           scrollDirection:ScrollDirectionHorizontal
                                             pagingEnabled:YES];
         [_calendarView setDelegate:self];
-        [_calendarView setDataSource:self];
     }
     return _calendarView;
 }

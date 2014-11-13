@@ -46,7 +46,6 @@
 @property (nonatomic) NSDateFormatter *ddFormatter;
 @property (nonatomic) NSDateFormatter *MMddyyyyFormatter;
 @property (nonatomic) NSDateFormatter *MMFormatter;
-
 @end
 
 @implementation SACalendar
@@ -198,7 +197,9 @@
     
         scrollLeft = NO;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
-        
+        //selectedRow = DESELECT_ROW;
+
+        /*
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:day:month:year:)]) {
             [_delegate SACalendar:self
                     didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
@@ -206,6 +207,7 @@
                             month:month
                              year:year];
         }
+        */
     
     } else if(state == LOADSTATEPREVIOUS) {
     
@@ -216,6 +218,8 @@
     
         scrollLeft = YES;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
+        //selectedRow = DESELECT_ROW;
+        /*
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:day:month:year:)]) {
             [_delegate SACalendar:self
                     didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
@@ -223,7 +227,8 @@
                             month:month
                              year:year];
                 
-        }                
+        }          
+         */
     }
     
     previousIndex = (int)index;
@@ -545,6 +550,7 @@
         }
     }
     
+    
     for(id key in monthLabels) {
         UILabel * value = [monthLabels objectForKey:key];
         if ([[value text] isEqualToString:date]) {
@@ -553,7 +559,6 @@
             return;
         }
     }
-    
 }
 
 
@@ -569,6 +574,26 @@
         calendarIsScrollingManually = FALSE;
         UICollectionView *view = [calendars objectForKey:[NSString stringWithFormat:@"%li",(long)currentPageIndex]];
         [self collectionView:view didSelectItemAtIndexPath:[NSIndexPath indexPathForRow:firstDay inSection:0]];
+        
+        if (scrollLeft) {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:day:month:year:)]) {
+                [_delegate SACalendar:self
+                       didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                                  day:firstDay
+                                month:month
+                                 year:year];
+            }
+            
+        } else {
+            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:day:month:year:)]) {
+                [_delegate SACalendar:self
+                       didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
+                                  day:firstDay
+                                month:month
+                                 year:year];
+            }
+            
+        }
     }
 }
 
