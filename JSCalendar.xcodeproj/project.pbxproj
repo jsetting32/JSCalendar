@@ -97,17 +97,17 @@
 		1E5108DF1A0F7156004B2530 /* JSCalendar */ = {
 			isa = PBXGroup;
 			children = (
+				1E55F48D1A119EA50037C046 /* AppDelegate.h */,
+				1E55F48E1A119EA50037C046 /* AppDelegate.m */,
 				1E55F4841A119EA50037C046 /* DateUtil.h */,
 				1E55F4851A119EA50037C046 /* DateUtil.m */,
 				1E55F4861A119EA50037C046 /* DMLazyScrollView.h */,
 				1E55F4871A119EA50037C046 /* DMLazyScrollView.m */,
 				1E55F4881A119EA50037C046 /* SACalendarConstants.h */,
-				1E55F4891A119EA50037C046 /* SACalendar.h */,
-				1E55F48A1A119EA50037C046 /* SACalendar.m */,
 				1E55F48B1A119EA50037C046 /* SACalendarCell.h */,
 				1E55F48C1A119EA50037C046 /* SACalendarCell.m */,
-				1E55F48D1A119EA50037C046 /* AppDelegate.h */,
-				1E55F48E1A119EA50037C046 /* AppDelegate.m */,
+				1E55F4891A119EA50037C046 /* SACalendar.h */,
+				1E55F48A1A119EA50037C046 /* SACalendar.m */,
 				1E55F48F1A119EA50037C046 /* ViewController.h */,
 				1E55F4901A119EA50037C046 /* ViewController.m */,
 				1E55F4971A11C3D40037C046 /* JSLogWorkoutController.h */,

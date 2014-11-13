@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 SyncoApp. All rights reserved.
 //
 //  Distributed under MIT License
+//
+//  Extended By John Setting on 11/07/14
 
 #import <UIKit/UIKit.h>
 #import "SACalendarConstants.h"
@@ -62,9 +64,10 @@
  *  @return initialized calendar
  */
 -(id)initWithFrame:(CGRect)frame month:(int)m year:(int)y scrollDirection:(scrollDirection)direction pagingEnabled:(BOOL)paging;
-
-- (void)selectCurrentDay;
+- (void)collectionView:(UICollectionView *)collectionView selectItemAtIndexPath:(NSIndexPath *)indexPath;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+
+- (void)selectDay:(NSString *)theDate;
 @end
 
 @protocol SACalendarDelegate <NSObject>
@@ -91,8 +94,8 @@
 -(void) SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year;
 -(BOOL) SACalendar:(SACalendar *)calendar doesCellHaveEvent:(int)day month:(int)month year:(int)year;
 
-- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year;
-- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year;
+- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year;
+- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year;
 
 @end
 

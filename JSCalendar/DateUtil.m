@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 SyncoApp. All rights reserved.
 //
 //  Distributed under MIT License
+//
+//  Extended By John Setting on 11/07/14
 
 #import "DateUtil.h"
 
@@ -20,7 +22,7 @@
 +(NSString*)getCurrentDate
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorianCalendar = [NSCalendar currentCalendar];
     
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     [formatter setLocale:usLocale];
@@ -33,7 +35,7 @@
 +(NSString*)getCurrentMonth
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorianCalendar = [NSCalendar currentCalendar];
     
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     [formatter setLocale:usLocale];
@@ -46,7 +48,7 @@
 +(NSString*)getCurrentYear
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorianCalendar = [NSCalendar currentCalendar];
     
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     [formatter setLocale:usLocale];
@@ -61,7 +63,7 @@
     NSDateFormatter* theDateFormatter = [[NSDateFormatter alloc] init];
     [theDateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
     
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorianCalendar = [NSCalendar currentCalendar];
     [theDateFormatter setCalendar:gregorianCalendar];
     
     [theDateFormatter setDateFormat:@"EEEE"];
@@ -81,13 +83,32 @@
 
 +(NSString*)getMonthString:(int)index
 {
-    NSArray *months = [[NSArray alloc]initWithObjects:@"January",@"Febuary",@"March",@"April",@"May",@"June",@"July",@"August",@"September",@"October",@"November",@"December", nil];
+    NSArray *months = [[NSArray alloc] initWithObjects:
+                       @"January",
+                       @"February",
+                       @"March",
+                       @"April",
+                       @"May",
+                       @"June",
+                       @"July",
+                       @"August",
+                       @"September",
+                       @"October",
+                       @"November",
+                       @"December", nil];
     return [months objectAtIndex:index-1];
 }
 
 +(NSString*)getDayString:(int)index
 {
-    NSArray *daysInWeeks = [[NSArray alloc]initWithObjects:@"Sunday",@"Monday",@"Tuesday",@"Wednesday",@"Thursday",@"Friday",@"Saturday", nil];
+    NSArray *daysInWeeks = [[NSArray alloc]initWithObjects:
+                            @"Sunday",
+                            @"Monday",
+                            @"Tuesday",
+                            @"Wednesday",
+                            @"Thursday",
+                            @"Friday",
+                            @"Saturday", nil];
     return [daysInWeeks objectAtIndex:index];
 }
 
@@ -107,7 +128,7 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd"];
     
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorianCalendar = [NSCalendar currentCalendar];
     [dateFormatter setCalendar:gregorianCalendar];
     
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];

@@ -8,6 +8,8 @@
 //  Copyright (c) 2014 SyncoApp. All rights reserved.
 //
 //  Distributed under MIT License
+//
+//  Extended By John Setting on 11/07/14
 
 #import <Foundation/Foundation.h>
 

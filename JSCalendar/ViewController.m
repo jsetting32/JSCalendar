@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 SyncoApp. All rights reserved.
 //
 //  Distributed under MIT License
+//
+//  Extended By John Setting on 11/07/14
 
 #import "ViewController.h"
 #import "SACalendar.h"
@@ -23,7 +25,10 @@
 @property (nonatomic) NSMutableArray *objects;
 @property (nonatomic) NSDate *selectedDate;
 @property (nonatomic) UILabel *navTitleView;
-@property int currentDateRange;
+@property int previousDateRange;
+@property int futureDateRange;
+@property NSString *currentSelectedTitle;
+//@property BOOL scrolling;
 @end
 
 @implementation ViewController
@@ -31,6 +36,7 @@
 - (id)init
 {
     if (!(self = [super init])) return nil;
+    //self.scrolling = NO;
     return self;
 }
 
@@ -50,14 +56,21 @@
     self.timeFormatter = [[NSDateFormatter alloc] init];
     [self.timeFormatter setDateFormat:@"hh:mm a"];
 
+    /*
     self.navTitleView =[[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 120, 40)];
     [self.navTitleView setTextAlignment:NSTextAlignmentCenter];
     [self.navTitleView setUserInteractionEnabled:YES];
     [self.navTitleView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.calendarView action:@selector(selectCurrentDay)]];
     self.navigationItem.titleView = self.navTitleView;
-
+    */
+     
+     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createWorkout:)];
     
+    
+    self.previousDateRange = -60;
+
+    self.futureDateRange = 60;
     
     [self.view addSubview:self.calendarView];
     [self.view addSubview:self.table];
@@ -72,6 +85,15 @@
                         @{@"name":@"Tabatha", @"date":[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*100)]},
                     nil];
 
+    self.dates = [NSMutableArray array];
+    
+    for (int i = -60; i < 60; i++) {
+        if (i == 0) [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate date]]];
+        else [self.dates addObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]]];
+    }
+    
+    [self.table reloadData];
+    [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:60] atScrollPosition:UITableViewScrollPositionTop animated:NO];
 }
 
 - (void)createWorkout:(UIBarButtonItem *)item
@@ -79,9 +101,22 @@
     [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[JSLogWorkoutController alloc] init]] animated:YES completion:nil];
 }
 
-- (void)didFinishLoading
+- (NSArray *)objectsInDict:(NSString *)sectionTitle
 {
-    [self.calendarView selectCurrentDay];
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSDictionary *dict in self.objects) {
+        if ([[self.dayFormatter stringFromDate:[dict objectForKey:@"date"]] isEqual:sectionTitle]) {
+            [array addObject:dict];
+        }
+    }
+    
+    NSArray *narray = [NSArray arrayWithArray:array];
+    
+    narray = [narray sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+        return [[obj1 objectForKey:@"date"] compare:[obj2 objectForKey:@"date"]];
+    }];
+    
+    return narray;
 }
 
 #pragma mark - Tableview Delegate/Datasource
@@ -99,12 +134,12 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return [self.dates count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [self.dayFormatter stringFromDate:self.selectedDate];
+    return [self.dates objectAtIndex:section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -115,6 +150,10 @@
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellIdentifier];
     }
+    
+    NSIndexPath *firstVisibleIndexPath = [[self.table indexPathsForVisibleRows] objectAtIndex:0];
+    NSString *secTitle = [self tableView:tableView titleForHeaderInSection:firstVisibleIndexPath.section];
+    self.currentSelectedTitle = secTitle;
     
     NSString *sectionTitle = [self tableView:tableView titleForHeaderInSection:indexPath.section];
     
@@ -140,22 +179,31 @@
     }
 }
 
-- (NSArray *)objectsInDict:(NSString *)sectionTitle
+
+#pragma mark - Scroller Delegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView_
 {
-    NSMutableArray *array = [NSMutableArray array];
-    for (NSDictionary *dict in self.objects) {
-        if ([[self.dayFormatter stringFromDate:[dict objectForKey:@"date"]] isEqual:sectionTitle]) {
-            [array addObject:dict];
-        }
+    CGFloat currentOffsetX = scrollView_.contentOffset.x;
+    CGFloat currentOffSetY = scrollView_.contentOffset.y;
+    CGFloat contentHeight = scrollView_.contentSize.height;
+    
+    if (currentOffSetY < (contentHeight / 8.0)) {
+        [self addPastDatesToDataSource];
+        scrollView_.contentOffset = CGPointMake(currentOffsetX,(currentOffSetY + (contentHeight/2)));
+    }
+    if (currentOffSetY > ((contentHeight * 6)/ 8.0)) {
+        [self addFutureDatesToDataSource];
+    }
+
+    
+    NSIndexPath *firstVisibleIndexPath = [[self.table indexPathsForVisibleRows] objectAtIndex:0];
+    NSString *secTitle = [self tableView:self.table titleForHeaderInSection:firstVisibleIndexPath.section];
+    
+    if (![secTitle isEqualToString:self.currentSelectedTitle] && self.currentSelectedTitle) {
+        self.currentSelectedTitle = secTitle;
+        [self.calendarView selectDay:secTitle];
     }
     
-    NSArray *narray = [NSArray arrayWithArray:array];
-    
-    narray = [narray sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [[obj1 objectForKey:@"date"] compare:[obj2 objectForKey:@"date"]];
-    }];
-    
-    return narray;
 }
 
 
@@ -170,24 +218,72 @@
     return YES;
 }
 
-- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year
+- (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
 {
-    [self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+    /*
+    NSDate *date = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
+    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:date]] == NSNotFound) 
+        [self addPastDatesToDataSource];
+    */
+    
+    /*
+    if (self.scrolling) {
+        NSLog(@"didScrollLeft Using Table");
+    } else {
+        NSLog(@"didScrollLeft Using Finger");
+        NSDate *selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
+        NSInteger index = [self.dates indexOfObject:[self.dayFormatter stringFromDate:selectedDate]];
+        if (index != NSNotFound)
+            [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:index] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
+    self.scrolling = NO;
+    */
+
+    //[self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+    //[self.calendarView selectDay:[self.dayFormatter stringFromDate:date]];
 }
 
-- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView withIndexPath:(NSIndexPath *)indexPath month:(int)month year:(int)year
+- (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
 {
-    [self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+    /*
+    NSDate *curDate = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
+    NSCalendar* cal = [NSCalendar currentCalendar];
+    NSDateComponents* comps = [cal components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitWeekOfMonth|NSCalendarUnitWeekday fromDate:curDate];
+    [comps setMonth:[comps month]+1];
+    [comps setDay:0];
+    NSDate *tDateMonth = [cal dateFromComponents:comps];
+    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:tDateMonth]] == NSNotFound)
+        [self addFutureDatesToDataSource];
+    */
+    
+    /*
+    if (self.scrolling) {
+        NSLog(@"didScrollRight Using Table");
+    } else {
+        NSLog(@"didScrollRight Using Finger");
+        NSDate *selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
+        NSInteger index = [self.dates indexOfObject:[self.dayFormatter stringFromDate:selectedDate]];
+        if (index != NSNotFound)
+            [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:index] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
+    self.scrolling = NO;
+    */
+    
+    
+    //[self.calendarView collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+    //[self.calendarView selectDay:[self.dayFormatter stringFromDate:tDateMonth]];
 }
 
-- (void) SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year
+- (void)SACalendar:(SACalendar*)calendar didSelectDate:(int)day month:(int)month year:(int)year
 {
+    //self.dateSelected = true;
     self.selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
-    [self.table reloadData];
+    NSString *ndate = [self.dayFormatter stringFromDate:self.selectedDate];
+    [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.dates indexOfObject:ndate]] atScrollPosition:UITableViewScrollPositionTop animated:NO];
 }
 
 -(void) SACalendar:(SACalendar *)calendar didDisplayCalendarForMonth:(int)month year:(int)year{
-    self.navTitleView.text = [NSString stringWithFormat:@"%@ %i", [DateUtil getMonthString:month],year];
+    self.title = [NSString stringWithFormat:@"%@ %i", [DateUtil getMonthString:month],year];
 
     int numberOfWeeks = (int)[DateUtil getNumberOfWeeksInMonth:[self.monthFormatter dateFromString:[NSString stringWithFormat:@"%i/%i", month, year]]];
 
@@ -215,6 +311,32 @@
     }
         
     }];
+}
+
+
+#pragma mark - Helper Methods
+- (void)addFutureDatesToDataSource
+{
+    NSMutableArray *array = [NSMutableArray array];
+    self.futureDateRange += 60;
+    for (int i = self.futureDateRange - 60; i < self.futureDateRange; i++) {
+        [array addObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]]];
+    }
+    [self.dates addObjectsFromArray:array];
+    [self.table reloadData];
+}
+
+- (void)addPastDatesToDataSource
+{
+    NSMutableArray *array = [NSMutableArray array];
+    self.previousDateRange -= 60;
+    for (int i = self.previousDateRange + 59; i >= self.previousDateRange; i--) {
+        [array insertObject:[self.dayFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)]] atIndex:0];
+    }
+    NSRange range = NSMakeRange(0, [array count]);
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
+    [self.dates insertObjects:array atIndexes:indexSet];
+    //[self.table reloadData];
 }
 
 
@@ -246,60 +368,5 @@
     }
     return _table;
 }
-
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView_
-{
-    CGFloat currentOffsetX = scrollView_.contentOffset.x;
-    CGFloat currentOffSetY = scrollView_.contentOffset.y;
-    CGFloat contentHeight = scrollView_.contentSize.height;
-    
-    NSLog(@"%f", currentOffSetY);
-    
-    if (currentOffSetY < (contentHeight / 8.0)) {
-        //scrollView_.contentOffset = CGPointMake(currentOffsetX,(currentOffSetY + (contentHeight/2)));
-        self.currentDateRange -= 15;
-        int j = 0;
-        for (int i = self.currentDateRange - 15; i < self.currentDateRange + 15; i++) {
-            if(i == 0) {
-                //[self.dates removeObjectAtIndex:0];
-                //[self.dates insertObject:[NSDate date] atIndex:0];
-                [self.dates addObject:[NSDate date]];
-            } else {
-                NSDate *date = [NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)];
-                //[self.dates removeObjectAtIndex:j];
-                //[self.dates insertObject:date atIndex:j];
-                [self.dates addObject:date];
-                
-            }
-            j++;
-        }
-        [self.table reloadData];
-        
-    } else if (currentOffSetY > ((contentHeight * 6)/ 8.0)) {
-        //self.dates = [NSMutableArray array];
-        
-        self.currentDateRange += 15;
-        int j = 0;
-        for (int i = self.currentDateRange - 15; i < self.currentDateRange + 15; i++) {
-            if(i == 0) {
-                //[self.dates removeObjectAtIndex:0];
-                //[self.dates insertObject:[NSDate date] atIndex:0];
-                [self.dates addObject:[NSDate date]];
-            } else {
-                NSDate *date = [NSDate dateWithTimeIntervalSinceNow:(60.0f*60.0f*24.0f*i)];
-                //[self.dates removeObjectAtIndex:j];
-                //[self.dates insertObject:date atIndex:j];
-                [self.dates addObject:date];
-                
-            }
-            j++;
-        }
-        [self.table reloadData];
-        //scrollView_.contentOffset = CGPointMake(currentOffsetX,(currentOffSetY - (contentHeight/2)));
-    }
-    
-}
-
 
 @end
