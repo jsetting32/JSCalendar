@@ -336,7 +336,6 @@
     NSRange range = NSMakeRange(0, [array count]);
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
     [self.dates insertObjects:array atIndexes:indexSet];
-    //[self.table reloadData];
 }
 
 

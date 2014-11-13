@@ -217,7 +217,6 @@
         scrollLeft = NO;
         //selectedRow = DESELECT_ROW;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
-        //NSLog(@"%i : %i", firstDay, selectedRow);
         
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:day:month:year:)]) {
             [_delegate SACalendar:self
@@ -239,8 +238,6 @@
         scrollLeft = YES;
         //selectedRow = DESELECT_ROW;
         firstDay = (int)[daysInWeeks indexOfObject:[DateUtil getDayOfDate:1 month:month year:year]];
-        //NSLog(@"%i : %i", firstDay, selectedRow);
-
         if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:day:month:year:)]) {
             [_delegate SACalendar:self
                     didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
@@ -339,54 +336,8 @@
         [calendars setObject:calendar forKey:[NSString stringWithFormat:@"%li",(long)index]];
         [controllers setObject:contr forKey:[NSString stringWithFormat:@"%li",(long)index]];
         [monthLabels setObject:monthLabel forKey:[NSString stringWithFormat:@"%li",(long)index]];
-        
-        /*
-        if (scrollLeft == YES) {
-            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:withIndexPath:month:year:)]) {
-                [_delegate SACalendar:self
-                        didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
-                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
-                                month:month
-                                 year:year];
-                
-            }
-        } else {
-            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:withIndexPath:month:year:)]) {
-                [_delegate SACalendar:self
-                       didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
-                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
-                                month:month
-                                 year:year];
-            }
-            
-        }
-        */
-        
         return contr;
     } else {
-        
-        /*
-        if (scrollLeft == YES) {
-            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollLeft:withIndexPath:month:year:)]) {
-                [_delegate SACalendar:self
-                        didScrollLeft:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
-                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
-                                month:month
-                                 year:year];
-                
-            }
-        } else {
-            if (_delegate && [_delegate respondsToSelector:@selector(SACalendar:didScrollRight:withIndexPath:month:year:)]) {
-                [_delegate SACalendar:self
-                       didScrollRight:[calendars objectForKey:[NSString stringWithFormat:@"%li",(long)index]]
-                        withIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
-                                month:month
-                                 year:year];
-            }
-            
-        }
-        */
-        
         return [controllers objectForKey:[NSString stringWithFormat:@"%li",(long)index]];
     }
     
@@ -605,14 +556,11 @@
     }
     
     [collectionView reloadData];
-
 }
 
 
 - (void)selectDay:(NSString *)theDate
 {
-    
-    
     NSDate *theRealDate = [self.EEEEMMMMddyyyyFormatter dateFromString:theDate];
     NSString *date = [self.MMMMyyyyFormatter stringFromDate:[self.EEEEMMMMddyyyyFormatter dateFromString:theDate]];
     NSInteger theDay = [[self.ddFormatter stringFromDate:[self.EEEEMMMMddyyyyFormatter dateFromString:theDate]] integerValue];
@@ -628,10 +576,8 @@
     } else {
         if (month > [[self.MMFormatter stringFromDate:theRealDate] integerValue]) {
             [self.scrollView moveByPages:-1 animated:NO];
-         //month--;
         } else if (month < [[self.MMFormatter stringFromDate:theRealDate] integerValue]) {
             [self.scrollView moveByPages:1 animated:NO];
-           // month++;
         }
     }
     
