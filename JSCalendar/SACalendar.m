@@ -529,7 +529,7 @@
 
 
 - (void)selectDay:(NSString *)theDate
-{
+{    
     NSDate *theRealDate = [self.EEEEMMMMddyyyyFormatter dateFromString:theDate];
     NSString *date = [self.MMMMyyyyFormatter stringFromDate:[self.EEEEMMMMddyyyyFormatter dateFromString:theDate]];
     NSInteger theDay = [[self.ddFormatter stringFromDate:[self.EEEEMMMMddyyyyFormatter dateFromString:theDate]] integerValue];

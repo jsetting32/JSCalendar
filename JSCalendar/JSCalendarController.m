@@ -27,6 +27,7 @@
 @property int previousDateRange;
 @property int futureDateRange;
 @property NSString *currentSelectedTitle;
+@property NSDate *previousDate;
 @end
 
 @implementation JSCalendarController
@@ -175,23 +176,37 @@
     CGFloat currentOffSetY = scrollView_.contentOffset.y;
     CGFloat contentHeight = scrollView_.contentSize.height;
     
-    if (currentOffSetY < (contentHeight / 8.0)) {
+    if (currentOffSetY == 0) {
+   
+        NSIndexPath *firstVisibleIndexPath = [[self.table indexPathsForVisibleRows] objectAtIndex:0];
+        NSString *secTitle = [self tableView:self.table titleForHeaderInSection:firstVisibleIndexPath.section];
+        NSDate *date = [self.dayFormatter dateFromString:secTitle];
+        self.previousDate = [date dateByAddingTimeInterval:60.0f*60.0f*24.0f*-1.0f];
         [self addPastDatesToDataSource];
         scrollView_.contentOffset = CGPointMake(currentOffsetX,(currentOffSetY + (contentHeight/2)));
-    }
-    if (currentOffSetY > ((contentHeight * 6)/ 8.0)) {
+
+    
+    } else if (currentOffSetY > ((contentHeight * 6)/ 8.0)) {
         [self addNextDatesToDataSource];
     }
 
-    
-    NSIndexPath *firstVisibleIndexPath = [[self.table indexPathsForVisibleRows] objectAtIndex:0];
-    NSString *secTitle = [self tableView:self.table titleForHeaderInSection:firstVisibleIndexPath.section];
-    
-    if (![secTitle isEqualToString:self.currentSelectedTitle] && self.currentSelectedTitle) {
-        self.currentSelectedTitle = secTitle;
-        [self.calendarView selectDay:secTitle];
-    }
-    
+    if (self.previousDate) {
+        NSString *new = [self.dayFormatter stringFromDate:self.previousDate];
+        [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.dates indexOfObject:new]] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+        self.currentSelectedTitle = new;
+        [self.calendarView selectDay:new];
+        self.previousDate = nil;
+        
+    } else {
+        
+        NSIndexPath *firstVisibleIndexPath = [[self.table indexPathsForVisibleRows] objectAtIndex:0];
+        NSString *secTitle = [self tableView:self.table titleForHeaderInSection:firstVisibleIndexPath.section];
+        if (![secTitle isEqualToString:self.currentSelectedTitle] && self.currentSelectedTitle) {
+            //NSLog(@"selecting");
+            self.currentSelectedTitle = secTitle;
+            [self.calendarView selectDay:secTitle];
+        }
+    }    
 }
 
 
@@ -211,8 +226,9 @@
     self.selectedDate = [self.dateFormatter dateFromString:[NSString stringWithFormat:@"%02i/%02i/%04i", month, day, year]];
     NSString *ndate = [self.dayFormatter stringFromDate:self.selectedDate];
     
-    if ([self.dates indexOfObject:ndate]) {
+    if ([self.dates indexOfObject:ndate] == NSNotFound) {
         [self addPastDatesToDataSource];
+        [self addNextDatesToDataSource];
     }
     
     [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.dates indexOfObject:ndate]] atScrollPosition:UITableViewScrollPositionTop animated:NO];
@@ -252,15 +268,20 @@
 
 - (void)SACalendar:(SACalendar *)calendar didScrollLeft:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
 {
+    NSLog(@"didScrollLeft");
+    /*
     NSDate *date = [self.monthFormatter dateFromString:[NSString stringWithFormat:@"%02i/%04i", month, year]];
-    if ([self.dates indexOfObject:[self.dayFormatter stringFromDate:date]] == NSNotFound) {
+    NSString *ndate = [self.dayFormatter stringFromDate:date];
+    if ([self.dates indexOfObject:ndate] == NSNotFound) {
         [self addPastDatesToDataSource];
     }
+*/
+    
 }
 
 - (void)SACalendar:(SACalendar *)calendar didScrollRight:(UICollectionView *)collectionView day:(int)day month:(int)month year:(int)year
 {
-    
+
 }
 
 
